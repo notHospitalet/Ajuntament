@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas Deportivas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Reservas de Instalaciones Deportivas</h1>
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Modal para el formulario de reserva -->
+    <div id="modalReserva" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Reservar Instalación</h2>
+            <form id="reservaForm">
+                <label for="instalacion">Instalación:</label>
+                <select id="instalacion" required>
+                    <option value="padel">Pádel</option>
+                    <option value="fronton">Frontón</option>
+                    <option value="futbol">Fútbol</option>
+                    <option value="futbolSala">Fútbol Sala</option>
+                </select>
+
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" required>
+
+                <label for="horaEntrada">Hora de Entrada:</label>
+                <select id="horaEntrada" required>
+                    <!-- Las opciones se generan dinámicamente con JavaScript -->
+                </select>
+
+                <label for="horaSalida">Hora de Salida:</label>
+                <select id="horaSalida" required>
+                    <!-- Las opciones se generan dinámicamente con JavaScript -->
+                </select>
+
+                <label for="tipo">Tipo de Reserva:</label>
+                <select id="tipo" required>
+                    <option value="sinLuz">Sin Luz</option>
+                    <option value="conLuz">Con Luz</option>
+                </select>
+
+                <label for="esLocal">¿Eres local?</label>
+                <input type="checkbox" id="esLocal">
+
+                <button type="submit">Reservar</button>
+            </form>
+            <div id="resultado"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
