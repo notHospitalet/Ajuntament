@@ -11,14 +11,12 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-// Inicializar la aplicación Express
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// Endpoint para reservar
 app.post('/reservar', (req, res) => {
-    const { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni } = req.body;
+    const { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, nombre, telefono, correo } = req.body;
 
     // Verificar si hay solapamientos en las reservas para la misma instalación
     db.all(
@@ -32,7 +30,7 @@ app.post('/reservar', (req, res) => {
                 return res.status(400).json({ mensaje: 'La hora seleccionada está ocupada.' });
             }
 
-            // Calcular precio basado en el documento
+            // Calcular precio según la instalación, tipo y si es local
             const precios = {
                 padel: { local: { sinLuz: 0, conLuz: 4 }, noLocal: { sinLuz: 4, conLuz: 8 } },
                 fronton: { local: { sinLuz: 0, conLuz: 4 }, noLocal: { sinLuz: 4, conLuz: 8 } },
@@ -42,19 +40,19 @@ app.post('/reservar', (req, res) => {
 
             const precio = precios[instalacion][esLocal ? 'local' : 'noLocal'][tipo];
 
-            // Insertar reserva en la base de datos, incluyendo el DNI si corresponde
+            // Insertar la reserva en la base de datos incluyendo los nuevos campos
             db.run(
-                'INSERT INTO reservas (instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, precio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                [instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal ? 1 : 0, dni, precio],
+                'INSERT INTO reservas (instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, precio, nombre, telefono, correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal ? 1 : 0, dni, precio, nombre, telefono, correo],
                 function (err) {
                     if (err) {
                         return res.status(500).json({ mensaje: 'Error al guardar la reserva.' });
                     }
 
-                    // Configurar el correo electrónico con los detalles de la reserva
+                    // Configurar el correo electrónico con todos los detalles de la reserva
                     const mailOptions = {
-                        from: '"Reservas Deportivas" <tu-email@gmail.com>', // Remitente
-                        to: 'mi-correo@ejemplo.com', // Destinatario (reemplaza por tu email)
+                        from: '"Reservas Deportivas" <tu-email@gmail.com>',
+                        to: 'mi-correo@ejemplo.com', // Reemplaza por tu correo
                         subject: 'Nueva Reserva Realizada',
                         text: `Se ha realizado una nueva reserva con los siguientes detalles:
 
@@ -65,6 +63,9 @@ Hora de Salida: ${horaSalida}
 Tipo de Reserva: ${tipo}
 Es Local: ${esLocal ? 'Sí' : 'No'}
 DNI: ${dni ? dni : 'N/A'}
+Nombre: ${nombre}
+Teléfono: ${telefono}
+Correo: ${correo}
 Precio: ${precio}€
 
 Por favor, verifica y confirma la reserva según sea necesario.`
@@ -103,9 +104,7 @@ app.get('/reservas', (req, res) => {
     });
 });
 
-// Iniciar servidor
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
-

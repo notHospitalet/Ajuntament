@@ -68,6 +68,8 @@ h1 {
     border: none;
     width: 90%;
     max-width: 600px;
+    max-height: 90vh;  /* Altura máxima para permitir scroll vertical */
+    overflow-y: auto;  /* Barra de desplazamiento vertical */
     border-radius: 15px;
     position: relative;
     animation: slideIn 0.4s ease-in-out;

@@ -36,12 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // =======================
     //  CONFIGURACIÓN DEL CALENDARIO
     // =======================
-    // Preparar el texto para el botón "Hoy" con la fecha actual en español
     const today = new Date();
     const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const todayText = today.toLocaleDateString('es-ES', optionsDate);
 
-    // Inicializar FullCalendar
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
@@ -73,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
             
             const startTime = info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const endTime   = info.event.end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
             const instalacion = info.event.title.split(' - ')[0].replace('Reserva ', '');
             
             infoMensaje.innerHTML = `<strong>${instalacion}</strong><br>de ${startTime} a ${endTime}`;
@@ -218,13 +215,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const tipo = tipoSelect.value;
         const esLocal = esLocalCheckbox.checked;
         const dni = esLocal ? document.getElementById('dni').value.trim() : null;
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const correo = document.getElementById('correo').value.trim();
 
         if (horaSalida <= horaEntrada) {
             document.getElementById('resultado').textContent = 'La hora de salida debe ser posterior a la de entrada.';
             return;
         }
 
-        const reserva = { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni };
+        const reserva = { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, nombre, telefono, correo };
 
         try {
             const response = await fetch('/reservar', {
