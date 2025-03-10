@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fuente profesional de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <title>Reservas Deportivas</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Reservas de Instalaciones Deportivas</h1>
+        <h1 class="titulo">RESERVAS DE INSTALACIONES DEPORTIVAS</h1>
+        <!-- Nuevo contenedor para mostrar la alerta de la reserva -->
+        <div id="reservaAlert" class="modal">
+            <div class="modal-content" style="position:relative;">
+                <span id="alertClose" class="close">&times;</span>
+                <div id="alertMessage"></div>
+            </div>
+        </div>
+        <!-- Nuevo contenedor para mostrar los detalles de la reserva -->
+        <div id="reservaDetalleHeader" style="padding:10px; background:#f2f2f2; text-align:center; font-size:1.2rem;"></div>
         <div id="calendar"></div>
     </div>
 
@@ -63,6 +74,14 @@
                 <button type="submit">Reservar</button>
             </form>
             <div id="resultado"></div>
+        </div>
+    </div>
+
+    <!-- Nuevo modal exclusivo para mostrar la información de la reserva -->
+    <div id="infoReservaModal" class="modal">
+        <div class="modal-content">
+            <span id="infoReservaClose" class="close">&times;</span>
+            <div id="infoReservaMensaje"></div>
         </div>
     </div>
 

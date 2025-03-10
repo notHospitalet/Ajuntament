@@ -54,8 +54,9 @@ app.get('/reservas', (req, res) => {
             return res.status(500).json({ mensaje: 'Error al obtener las reservas.' });
         }
         // Formatear los eventos para FullCalendar
+        // Ahora mostramos en el título la instalación y el rango horario de forma más profesional
         const eventos = rows.map(row => ({
-            title: `Reserva: ${row.instalacion}`,
+            title: `Reserva ${row.instalacion.toUpperCase()} - ${row.horaEntrada} a ${row.horaSalida}`,
             start: `${row.fecha}T${row.horaEntrada}:00`,
             end: `${row.fecha}T${row.horaSalida}:00`,
             allDay: false

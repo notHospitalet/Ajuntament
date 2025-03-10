@@ -34,38 +34,103 @@ document.addEventListener('DOMContentLoaded', function () {
 
     llenarHoras();
 
+    // =======================
+    //  CONFIGURACIÓN DEL CALENDARIO
+    // =======================
+    // Preparar el texto para el botón "Hoy" con la fecha actual en español
+    const today = new Date();
+    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const todayText = today.toLocaleDateString('es-ES', optionsDate);
+
     // Inicializar FullCalendar
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        // Ajustes de idioma y comienzo de semana
+        locale: 'es',
+        firstDay: 1, // Lunes como primer día de la semana
+
+        // Permitir que se muestren todos los eventos sin botón "más"
+        dayMaxEventRows: false,
+        dayMaxEvents: false,
+
+        // Personalizar la barra de navegación superior
+        headerToolbar: {
+            left: 'prev,next myCustomToday',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek'
+        },
+        customButtons: {
+            myCustomToday: {
+                text: `Hoy: ${todayText}`, // Mostrar la fecha de hoy en el botón
+                click: function() {
+                    calendar.today(); // Navegar a la fecha actual
+                }
+            }
+        },
+
         events: '/reservas',
+        
+        // Evento al hacer clic en un día
         dateClick: function (info) {
             // Mostrar el modal y establecer la fecha seleccionada
             modal.style.display = 'block';
             fechaInput.value = info.dateStr;
+        },
+        eventClick: function(info) {
+            // Obtener el modal y sus elementos para la información
+            const infoModal = document.getElementById('infoReservaModal');
+            const infoMensaje = document.getElementById('infoReservaMensaje');
+            const closeInfo = document.getElementById('infoReservaClose');
+            
+            // Extraer los horarios con formato
+            const startTime = info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const endTime   = info.event.end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Se asume que el título tiene el formato: "Reserva INSTALACION - HORA_ENTRADA a HORA_SALIDA"
+            const instalacion = info.event.title.split(' - ')[0].replace('Reserva ', '');
+            
+            // Actualizar el mensaje del modal
+            infoMensaje.innerHTML = `<strong>${instalacion}</strong><br>de ${startTime} a ${endTime}`;
+            
+            // Mostrar el modal en primer plano
+            infoModal.style.display = 'block';
+            
+            // Cierre manual al hacer clic en "X"
+            closeInfo.onclick = function() {
+                infoModal.style.display = 'none';
+            };
+
+            // Cierre automático luego de 5 segundos
+            setTimeout(() => {
+                infoModal.style.display = 'none';
+            }, 5000);
         }
     });
+
     calendar.render();
 
-    // Cerrar el modal al hacer clic en la "X"
+    // =======================
+    //  LÓGICA PARA CERRAR EL MODAL
+    // =======================
     span.onclick = function () {
         modal.style.display = 'none';
     };
-
-    // Cerrar el modal al hacer clic fuera de él
     window.onclick = function (event) {
         if (event.target === modal) {
             modal.style.display = 'none';
         }
     };
 
-    // Elementos para la actualización del precio y el campo DNI
+    // =======================
+    //  MANEJO DEL FORMULARIO DE RESERVA
+    // =======================
     const instalacionSelect = document.getElementById('instalacion');
     const tipoSelect = document.getElementById('tipo');
     const esLocalCheckbox = document.getElementById('esLocal');
     const precioPreview = document.getElementById('precioPreview');
     const dniField = document.getElementById('dniField');
 
-    // Mostrar u ocultar el campo DNI según el checkbox de "es local"
+    // Mostrar/ocultar el campo DNI según el checkbox "¿Eres local?"
     esLocalCheckbox.addEventListener('change', function() {
         if (esLocalCheckbox.checked) {
             dniField.style.display = 'block';
@@ -75,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
         calcularPrecio();
     });
 
+    // Función para calcular y mostrar el precio en el "preview"
     function calcularPrecio() {
         const instalacion = instalacionSelect.value;
         const horaEntrada = horaEntradaSelect.value;
@@ -102,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const duracionHoras = (salidaMin - entradaMin) / 60;
         let precioPorHora = 0;
 
+        // Cálculo según instalación, tipo y si es local
         if (esLocal) {
             if (tipo === "sinLuz") {
                 precioPorHora = 0;
@@ -132,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         precioPreview.textContent = "Precio: " + precioTotal.toFixed(2) + " €";
     }
 
-    // Agregar event listeners para actualizar el precio al cambiar los campos
+    // Eventos para recalcular el precio al cambiar algún dato
     instalacionSelect.addEventListener('change', calcularPrecio);
     horaEntradaSelect.addEventListener('change', calcularPrecio);
     horaSalidaSelect.addEventListener('change', calcularPrecio);
