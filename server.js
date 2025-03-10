@@ -8,12 +8,12 @@ app.use(express.static('public'));
 
 // Endpoint para reservar
 app.post('/reservar', (req, res) => {
-    const { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal } = req.body;
+    const { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni } = req.body;
 
-    // Verificar si hay solapamientos en las reservas
+    // Verificar si hay solapamientos en las reservas para la misma instalación
     db.all(
-        'SELECT * FROM reservas WHERE fecha = ? AND ((horaEntrada < ? AND horaSalida > ?) OR (horaEntrada < ? AND horaSalida > ?) OR (horaEntrada >= ? AND horaSalida <= ?))',
-        [fecha, horaSalida, horaEntrada, horaSalida, horaEntrada, horaEntrada, horaSalida],
+        'SELECT * FROM reservas WHERE instalacion = ? AND fecha = ? AND ((horaEntrada < ? AND horaSalida > ?) OR (horaEntrada < ? AND horaSalida > ?) OR (horaEntrada >= ? AND horaSalida <= ?))',
+        [instalacion, fecha, horaSalida, horaEntrada, horaSalida, horaEntrada, horaEntrada, horaSalida],
         (err, rows) => {
             if (err) {
                 return res.status(500).json({ mensaje: 'Error al verificar la reserva.' });
@@ -32,10 +32,10 @@ app.post('/reservar', (req, res) => {
 
             const precio = precios[instalacion][esLocal ? 'local' : 'noLocal'][tipo];
 
-            // Insertar reserva en la base de datos
+            // Insertar reserva en la base de datos, incluyendo el DNI si corresponde
             db.run(
-                'INSERT INTO reservas (instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, precio) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal ? 1 : 0, precio],
+                'INSERT INTO reservas (instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, precio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal ? 1 : 0, dni, precio],
                 function (err) {
                     if (err) {
                         return res.status(500).json({ mensaje: 'Error al guardar la reserva.' });

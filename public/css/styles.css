@@ -1,83 +1,131 @@
+/* Variables CSS para una fácil personalización */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --light-color: #ffffff;
+    --dark-color: #343a40;
+    --background-color: #f8f9fa;
+    --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: var(--font-family);
+    background-color: var(--background-color);
     margin: 0;
     padding: 0;
+    color: var(--dark-color);
 }
 
 .container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--light-color);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    color: var(--dark-color);
 }
 
 #calendar {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 /* Estilos para el modal */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 999;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: var(--light-color);
     margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 10px;
+    padding: 30px;
+    border: none;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 15px;
+    position: relative;
+    animation: slideIn 0.4s ease-in-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: var(--secondary-color);
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .close:hover {
-    color: #000;
+    color: var(--dark-color);
 }
 
 form {
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
 }
 
 label {
-    margin-top: 10px;
-    font-weight: bold;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-color);
 }
 
-input, select, button {
-    margin-top: 5px;
-    padding: 10px;
-    font-size: 16px;
+input, select {
+    margin-top: 8px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--primary-color);
+    outline: none;
 }
 
 button {
-    background-color: #28a745;
-    color: white;
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 1.2rem;
+    background-color: var(--success-color);
+    color: var(--light-color);
     border: none;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -87,5 +135,34 @@ button:hover {
 #resultado {
     margin-top: 20px;
     font-weight: bold;
-    color: #333;
+    font-size: 1.1rem;
+    text-align: center;
+    color: var(--danger-color);
+}
+
+/* Estilo para el preview del precio */
+#precioPreview {
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    background-color: #e9f5ff;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Ajustes para diseño responsivo */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px;
+        padding: 20px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20% auto;
+        padding: 20px;
+    }
 }

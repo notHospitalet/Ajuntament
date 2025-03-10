@@ -16,8 +16,9 @@ const db = new sqlite3.Database('./database.db', (err) => {
                 horaSalida TEXT NOT NULL,
                 tipo TEXT NOT NULL,
                 esLocal INTEGER NOT NULL,
+                dni TEXT,
                 precio REAL NOT NULL,
-                UNIQUE(fecha, horaEntrada, horaSalida)
+                UNIQUE(instalacion, fecha, horaEntrada, horaSalida)
             )
         `, (err) => {
             if (err) {

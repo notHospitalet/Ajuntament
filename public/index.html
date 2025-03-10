@@ -46,8 +46,19 @@
                     <option value="conLuz">Con Luz</option>
                 </select>
 
-                <label for="esLocal">¿Eres local?</label>
-                <input type="checkbox" id="esLocal">
+                <div class="form-group-local">
+                    <label for="esLocal" style="display:inline-block; margin-right:10px;">¿Eres local?</label>
+                    <input type="checkbox" id="esLocal">
+                </div>
+                
+                <!-- Campo DNI, inicialmente oculto -->
+                <div id="dniField" style="display:none;">
+                    <label for="dni">DNI:</label>
+                    <input type="text" id="dni" pattern="^\d{8}[A-Za-z]$" maxlength="9" placeholder="Ejemplo:12345678A">
+                </div>
+
+                <!-- Preview del precio -->
+                <div id="precioPreview"></div>
 
                 <button type="submit">Reservar</button>
             </form>
