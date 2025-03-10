@@ -39,11 +39,6 @@ h1 {
 
 #calendar {
     margin-bottom: 30px;
-    /* Si deseas ajustar aún más el tamaño del calendario y centrarlo:
-       max-width: 1100px;
-       margin: 0 auto;
-       padding: 20px 0;
-    */
 }
 
 /* Estilos para el modal */
@@ -112,7 +107,6 @@ label {
     color: var(--dark-color);
 }
 
-/* Inputs y selects con borde redondeado y efecto de foco moderno */
 input, select {
     margin-top: 8px;
     padding: 12px 15px;
@@ -128,7 +122,6 @@ input:focus, select:focus {
     outline: none;
 }
 
-/* Botones con mayor efecto de transición y suavidad */
 button {
     margin-top: 20px;
     padding: 12px 20px;
@@ -154,7 +147,6 @@ button:hover {
     color: var(--danger-color);
 }
 
-/* Estilo para el preview del precio */
 #precioPreview {
     margin-top: 15px;
     padding: 12px;
@@ -167,7 +159,6 @@ button:hover {
     font-weight: bold;
 }
 
-/* Estilos para la alerta de información de reserva */
 #reservaAlert {
     display: none;
     position: fixed;
@@ -190,7 +181,6 @@ button:hover {
     color: #721c24;
 }
 
-/* Ajustes para diseño responsivo */
 @media (max-width: 768px) {
     .container {
         margin: 20px;
@@ -208,12 +198,10 @@ button:hover {
 /*      FULLCALENDAR STYLES     */
 /* ============================= */
 
-/* Ajustar la fuente para que coincida con la de la web */
 .fc {
     font-family: var(--font-family);
 }
 
-/* Personalizar la barra de navegación (prev, next, etc.) */
 .fc .fc-toolbar.fc-header-toolbar {
     display: flex;
     justify-content: space-between;
@@ -225,7 +213,6 @@ button:hover {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Botones del calendario */
 .fc .fc-button {
     background-color: var(--primary-color);
     border: none;
@@ -242,21 +229,18 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Fines de semana con un tono gris */
 .fc .fc-day-sat,
 .fc .fc-day-sun {
     background-color: #f0f0f0;
 }
 
-/* Día actual con un tono diferente */
 .fc .fc-day-today {
-    background-color: #cce5ff !important; /* Azul claro */
+    background-color: #cce5ff !important;
 }
 .fc .fc-day-today .fc-daygrid-day-number {
-    color: #004085; /* Texto más oscuro para resaltar */
+    color: #004085;
 }
 
-/* Eventos en el calendario */
 .fc .fc-daygrid-event {
     border-radius: 4px;
     padding: 2px 6px;
@@ -273,33 +257,50 @@ button:hover {
 }
 
 .fc-event:hover {
-    background-color: #218838; /* Un tono más oscuro de verde */
+    background-color: #218838;
 }
 
-/* 
- * Permitir que el texto de los eventos se muestre en múltiples líneas
- * y no sea recortado con puntos suspensivos.
- */
 .fc-daygrid-event .fc-event-main {
     white-space: normal !important;
     overflow-wrap: break-word !important;
 }
 
-/* Ajustar la altura automáticamente para que quepa todo el texto */
 .fc-daygrid-event {
     height: auto !important;
-    min-height: 18px; /* Ajusta si deseas un alto mínimo */
+    min-height: 18px;
 }
 
 .titulo {
     font-size: 3rem;
     font-weight: 800;
     text-align: center;
-    /* Degradado de color en el texto */
     background: linear-gradient(45deg, #ff6b6b, #f8e71c, #6bc1ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    /* Sombra para destacar */
     text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
     margin-bottom: 30px;
+}
+
+/* ============================= */
+/*    Tooltip Solicitar Reserva   */
+/* ============================= */
+.fc-daygrid-day {
+    position: relative;
+}
+
+.fc-day-tooltip {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 2000;
 }

@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
     const modal = document.getElementById('modalReserva');
-    const span = document.querySelector('.close');
     const fechaInput = document.getElementById('fecha');
     const horaEntradaSelect = document.getElementById('horaEntrada');
     const horaSalidaSelect = document.getElementById('horaSalida');
@@ -45,15 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Inicializar FullCalendar
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        // Ajustes de idioma y comienzo de semana
         locale: 'es',
-        firstDay: 1, // Lunes como primer día de la semana
-
-        // Permitir que se muestren todos los eventos sin botón "más"
+        firstDay: 1,
         dayMaxEventRows: false,
         dayMaxEvents: false,
-
-        // Personalizar la barra de navegación superior
         headerToolbar: {
             left: 'prev,next myCustomToday',
             center: 'title',
@@ -61,63 +55,68 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         customButtons: {
             myCustomToday: {
-                text: `Hoy: ${todayText}`, // Mostrar la fecha de hoy en el botón
+                text: `Hoy: ${todayText}`,
                 click: function() {
-                    calendar.today(); // Navegar a la fecha actual
+                    calendar.today();
                 }
             }
         },
-
         events: '/reservas',
-        
-        // Evento al hacer clic en un día
         dateClick: function (info) {
-            // Mostrar el modal y establecer la fecha seleccionada
             modal.style.display = 'block';
             fechaInput.value = info.dateStr;
         },
         eventClick: function(info) {
-            // Obtener el modal y sus elementos para la información
             const infoModal = document.getElementById('infoReservaModal');
             const infoMensaje = document.getElementById('infoReservaMensaje');
             const closeInfo = document.getElementById('infoReservaClose');
             
-            // Extraer los horarios con formato
             const startTime = info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const endTime   = info.event.end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
-            // Se asume que el título tiene el formato: "Reserva INSTALACION - HORA_ENTRADA a HORA_SALIDA"
             const instalacion = info.event.title.split(' - ')[0].replace('Reserva ', '');
             
-            // Actualizar el mensaje del modal
             infoMensaje.innerHTML = `<strong>${instalacion}</strong><br>de ${startTime} a ${endTime}`;
-            
-            // Mostrar el modal en primer plano
             infoModal.style.display = 'block';
             
-            // Cierre manual al hacer clic en "X"
             closeInfo.onclick = function() {
                 infoModal.style.display = 'none';
             };
 
-            // Cierre automático luego de 5 segundos
             setTimeout(() => {
                 infoModal.style.display = 'none';
             }, 5000);
+        },
+        // Nuevo callback para añadir tooltip en cada celda del día
+        dayCellDidMount: function(info) {
+            let tooltip = document.createElement("span");
+            tooltip.classList.add("fc-day-tooltip");
+            tooltip.textContent = "Solicitar Reserva";
+            tooltip.style.display = "none";
+            info.el.appendChild(tooltip);
+
+            info.el.addEventListener("mouseenter", function() {
+                tooltip.style.display = "block";
+            });
+            info.el.addEventListener("mouseleave", function() {
+                tooltip.style.display = "none";
+            });
         }
     });
 
     calendar.render();
 
     // =======================
-    //  LÓGICA PARA CERRAR EL MODAL
+    //  LÓGICA PARA CERRAR LOS MODALES
     // =======================
-    span.onclick = function () {
-        modal.style.display = 'none';
-    };
+    document.querySelectorAll('.modal .close').forEach(btn => {
+        btn.onclick = function () {
+            this.closest('.modal').style.display = 'none';
+        };
+    });
     window.onclick = function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
         }
     };
 
@@ -130,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const precioPreview = document.getElementById('precioPreview');
     const dniField = document.getElementById('dniField');
 
-    // Mostrar/ocultar el campo DNI según el checkbox "¿Eres local?"
     esLocalCheckbox.addEventListener('change', function() {
         if (esLocalCheckbox.checked) {
             dniField.style.display = 'block';
@@ -140,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function () {
         calcularPrecio();
     });
 
-    // Función para calcular y mostrar el precio en el "preview"
     function calcularPrecio() {
         const instalacion = instalacionSelect.value;
         const horaEntrada = horaEntradaSelect.value;
@@ -148,13 +145,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const tipo = tipoSelect.value;
         const esLocal = esLocalCheckbox.checked;
 
-        // Verificar que se hayan seleccionado horas válidas
         if (!horaEntrada || !horaSalida) {
             precioPreview.textContent = "";
             return;
         }
 
-        // Convertir horas a minutos para calcular la duración
         const [entradaH, entradaM] = horaEntrada.split(':').map(Number);
         const [salidaH, salidaM] = horaSalida.split(':').map(Number);
         const entradaMin = entradaH * 60 + entradaM;
@@ -168,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const duracionHoras = (salidaMin - entradaMin) / 60;
         let precioPorHora = 0;
 
-        // Cálculo según instalación, tipo y si es local
         if (esLocal) {
             if (tipo === "sinLuz") {
                 precioPorHora = 0;
@@ -179,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     precioPorHora = 4;
                 }
             }
-        } else { // No es local
+        } else {
             if (tipo === "sinLuz") {
                 if (instalacion === "futbol") {
                     precioPorHora = 15;
@@ -199,17 +193,14 @@ document.addEventListener('DOMContentLoaded', function () {
         precioPreview.textContent = "Precio: " + precioTotal.toFixed(2) + " €";
     }
 
-    // Eventos para recalcular el precio al cambiar algún dato
     instalacionSelect.addEventListener('change', calcularPrecio);
     horaEntradaSelect.addEventListener('change', calcularPrecio);
     horaSalidaSelect.addEventListener('change', calcularPrecio);
     tipoSelect.addEventListener('change', calcularPrecio);
 
-    // Manejar el envío del formulario de reserva
     document.getElementById('reservaForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Validar DNI si el usuario es local
         if (esLocalCheckbox.checked) {
             const dniInput = document.getElementById('dni');
             const dniValue = dniInput.value.trim();
@@ -228,7 +219,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const esLocal = esLocalCheckbox.checked;
         const dni = esLocal ? document.getElementById('dni').value.trim() : null;
 
-        // Validar que la hora de salida sea posterior a la de entrada
         if (horaSalida <= horaEntrada) {
             document.getElementById('resultado').textContent = 'La hora de salida debe ser posterior a la de entrada.';
             return;
@@ -245,11 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             document.getElementById('resultado').textContent = data.mensaje;
-
-            // Recargar el calendario para reflejar la nueva reserva
             calendar.refetchEvents();
-
-            // Cerrar el modal después de 2 segundos
             setTimeout(() => {
                 modal.style.display = 'none';
             }, 2000);
