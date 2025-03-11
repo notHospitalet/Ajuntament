@@ -122,19 +122,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 infoModal.style.display = 'none';
             }, 5000);
         },
+        // Actualización en dayCellDidMount para mostrar tooltip solo en días habilitados
         dayCellDidMount: function(info) {
-            let tooltip = document.createElement("span");
-            tooltip.classList.add("fc-day-tooltip");
-            tooltip.textContent = "Solicitar Reserva";
-            tooltip.style.display = "none";
-            info.el.appendChild(tooltip);
-
-            info.el.addEventListener("mouseenter", function() {
-                tooltip.style.display = "block";
-            });
-            info.el.addEventListener("mouseleave", function() {
+            // Obtener la fecha de la celda y establecer la hora a 00:00
+            let cellDate = new Date(info.date);
+            cellDate.setHours(0, 0, 0, 0);
+            // Obtener la fecha actual sin tiempo
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+            // Solo si la fecha de la celda es igual o posterior a hoy se añade el tooltip
+            if (cellDate >= currentDate) {
+                let tooltip = document.createElement("span");
+                tooltip.classList.add("fc-day-tooltip");
+                tooltip.textContent = "Solicitar Reserva";
                 tooltip.style.display = "none";
-            });
+                info.el.appendChild(tooltip);
+
+                info.el.addEventListener("mouseenter", function() {
+                    tooltip.style.display = "block";
+                });
+                info.el.addEventListener("mouseleave", function() {
+                    tooltip.style.display = "none";
+                });
+            }
         }
     });
 
