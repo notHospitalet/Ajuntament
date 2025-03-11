@@ -2,12 +2,14 @@ const express = require('express');
 const db = require('./database.js');
 const nodemailer = require('nodemailer');
 
-// Configurar el transporter de Nodemailer (reemplaza los valores por los tuyos o usa variables de entorno)
+// Configurar el transporter de Nodemailer
+require('dotenv').config();
+
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: '',      // Tu email
-        pass: ''       // Tu contraseña o token de aplicación
+        user: process.env.EMAIL,      // Tu dirección de correo electrónico
+        pass: process.env.PASSWORD     // Tu contraseña o contraseña de aplicación
     }
 });
 
@@ -49,7 +51,7 @@ app.post('/reservar', (req, res) => {
 
             const precio = precios[instalacion][esLocal ? 'local' : 'noLocal'][tipo];
 
-            // Insertar la reserva en la base de datos incluyendo los nuevos campos
+            // Insertar la reserva en la base de datos
             db.run(
                 'INSERT INTO reservas (instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, precio, nombre, telefono, correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal ? 1 : 0, dni, precio, nombre, telefono, correo],
@@ -58,10 +60,32 @@ app.post('/reservar', (req, res) => {
                         return res.status(500).json({ mensaje: 'Error al guardar la reserva.' });
                     }
 
-                    // Configurar el correo electrónico con todos los detalles de la reserva
-                    const mailOptions = {
-                        from: '"Reservas Deportivas" <tu-email@gmail.com>',
-                        to: 'mi-correo@ejemplo.com', // Reemplaza por tu correo
+                    // Configurar el correo electrónico para el usuario
+                    const mailOptionsUsuario = {
+                        from: '"Reservas Deportivas" <adriancabedocanos1234@gmail.com>',
+                        to: correo, // Correo del usuario
+                        subject: 'Confirmación de Reserva',
+                        text: `Hola ${nombre},
+
+Se ha realizado tu reserva con los siguientes detalles:
+
+Instalación: ${instalacion}
+Fecha: ${fecha}
+Hora de Entrada: ${horaEntrada}
+Hora de Salida: ${horaSalida}
+Tipo de Reserva: ${tipo}
+Es Local: ${esLocal ? 'Sí' : 'No'}
+DNI: ${dni ? dni : 'N/A'}
+Teléfono: ${telefono}
+Precio: ${precio}€
+
+Gracias por elegirnos. ¡Te esperamos!`
+                    };
+
+                    // Configurar el correo electrónico para el propietario
+                    const mailOptionsPropietario = {
+                        from: '"Reservas Deportivas" <adriancabedocanos1234@gmail.com>',
+                        to: 'adriancabedocanos1234@gmail.com', // Correo del propietario
                         subject: 'Nueva Reserva Realizada',
                         text: `Se ha realizado una nueva reserva con los siguientes detalles:
 
@@ -80,12 +104,21 @@ Precio: ${precio}€
 Por favor, verifica y confirma la reserva según sea necesario.`
                     };
 
-                    // Enviar el correo electrónico
-                    transporter.sendMail(mailOptions, (error, info) => {
+                    // Enviar el correo electrónico al usuario
+                    transporter.sendMail(mailOptionsUsuario, (error, info) => {
                         if (error) {
-                            console.error('Error al enviar email:', error);
+                            console.error('Error al enviar email al usuario:', error);
                         } else {
-                            console.log('Email enviado: ' + info.response);
+                            console.log('Email enviado al usuario: ' + info.response);
+                        }
+                    });
+
+                    // Enviar el correo electrónico al propietario
+                    transporter.sendMail(mailOptionsPropietario, (error, info) => {
+                        if (error) {
+                            console.error('Error al enviar email al propietario:', error);
+                        } else {
+                            console.log('Email enviado al propietario: ' + info.response);
                         }
                     });
 

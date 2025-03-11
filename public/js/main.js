@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Generar opciones de horas (de media en media hora)
     function generarHoras() {
         const horas = [];
-        for (let i = 8; i <= 22; i++) { // De 8:00 a 22:00
+        for (let i = 7; i <= 23; i++) { // De 8:00 a 22:00
             horas.push(`${i.toString().padStart(2, '0')}:00`);
             horas.push(`${i.toString().padStart(2, '0')}:30`);
         }

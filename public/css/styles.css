@@ -276,11 +276,23 @@ button:hover {
     font-size: 3rem;
     font-weight: 800;
     text-align: center;
-    background: linear-gradient(45deg, #ff6b6b, #f8e71c, #6bc1ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+    color: #2c3e50; /* nuevo color simple y bonito */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* sombra sutil */
     margin-bottom: 30px;
+    /* Se eliminaron el background, -webkit-background-clip y -webkit-text-fill-color */
+}
+
+/* Nuevo contenedor para el título con escudo */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+/* Estilo para el escudo */
+.escudo {
+    width: 175px;
+    margin-right: 20px;
 }
 
 /* ============================= */
