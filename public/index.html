@@ -65,10 +65,10 @@
                 <input type="text" id="nombre" required placeholder="Tu nombre completo">
 
                 <label for="telefono">Teléfono:</label>
-                <input type="tel" id="telefono" required placeholder="Tu número de teléfono">
+                <input type="tel" id="telefono" maxlength="9" required placeholder="Tu número de teléfono">
 
                 <label for="correo">Correo electrónico:</label>
-                <input type="email" id="correo" required placeholder="Tu correo electrónico">
+                <input type="email" id="correo" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" required placeholder="ejemplocorreo@gmail.com">
 
                 <div class="form-group-local">
                     <label for="esLocal" style="display:inline-block; margin-right:10px;">¿Eres local?</label>
@@ -78,7 +78,7 @@
                 <!-- Campo DNI, inicialmente oculto -->
                 <div id="dniField" style="display:none;">
                     <label for="dni">DNI:</label>
-                    <input type="text" id="dni" pattern="^\d{8}[A-Za-z]$" maxlength="9" placeholder="Ejemplo:12345678A">
+                    <input type="text" id="dni" pattern="^\d{8}[A-Za-z]$" maxlength="9" placeholder="Ejemplo: 12345678A">
                 </div>
 
                 <!-- Preview del precio -->

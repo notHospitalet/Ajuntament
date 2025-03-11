@@ -1,5 +1,5 @@
 {
-  "name": "Ajuntament",
+  "name": "ajuntament",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -20,9 +20,13 @@
   "homepage": "https://github.com/notHospitalet/Ajuntament#readme",
   "dependencies": {
     "dotenv": "^16.4.7",
-    "express": "^4.18.2",
+    "express": "^4.21.2",
     "mysql2": "^3.6.0",
     "nodemailer": "^6.10.0",
     "sqlite3": "^5.1.7"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

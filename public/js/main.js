@@ -4,20 +4,52 @@ document.addEventListener('DOMContentLoaded', function () {
     const fechaInput = document.getElementById('fecha');
     const horaEntradaSelect = document.getElementById('horaEntrada');
     const horaSalidaSelect = document.getElementById('horaSalida');
+    const precioPreview = document.getElementById('precioPreview');
+    const dniField = document.getElementById('dniField');
 
-    // Generar opciones de horas (de media en media hora)
-    function generarHoras() {
-        const horas = [];
-        for (let i = 7; i <= 23; i++) { // De 8:00 a 22:00
-            horas.push(`${i.toString().padStart(2, '0')}:00`);
-            horas.push(`${i.toString().padStart(2, '0')}:30`);
-        }
-        return horas;
+    // Función para limpiar el formulario y mensajes del modal de reserva
+    function limpiarModal() {
+        document.getElementById('reservaForm').reset();
+        precioPreview.textContent = "";
+        document.getElementById('resultado').textContent = "";
+        dniField.style.display = 'none';
     }
 
-    // Llenar los selectores de hora de entrada y salida
-    function llenarHoras() {
-        const horas = generarHoras();
+    // Función para generar los selectores de hora según la fecha seleccionada
+    function llenarHorasSegunFecha() {
+        const fecha = fechaInput.value;
+        let startHour, endHour;
+        if (fecha) {
+            const dateObj = new Date(fecha);
+            const month = dateObj.getMonth(); // 0 = enero, 11 = diciembre
+            // Horario de verano: de abril (mes 3) a septiembre (mes 8) (ambos incluidos)
+            if (month >= 3 && month <= 8) {
+                startHour = 7;
+                endHour = 24;
+            } else {
+                // Horario de invierno
+                startHour = 8;
+                endHour = 22;
+            }
+        } else {
+            // Por defecto, horario de invierno
+            startHour = 8;
+            endHour = 22;
+        }
+
+        const horas = [];
+        for (let h = startHour; h < endHour; h++) {
+            horas.push(`${h.toString().padStart(2, '0')}:00`);
+            horas.push(`${h.toString().padStart(2, '0')}:30`);
+        }
+        // Agregar la opción final (la hora exacta de cierre)
+        horas.push(`${endHour.toString().padStart(2, '0')}:00`);
+
+        // Limpiar selectores
+        horaEntradaSelect.innerHTML = "";
+        horaSalidaSelect.innerHTML = "";
+
+        // Llenar ambos selectores
         horas.forEach(hora => {
             const optionEntrada = document.createElement('option');
             optionEntrada.value = hora;
@@ -30,8 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
             horaSalidaSelect.appendChild(optionSalida);
         });
     }
-
-    llenarHoras();
 
     // =======================
     // CONFIGURACIÓN DEL CALENDARIO
@@ -63,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         },
-        // Bloquear días anteriores a la fecha actual
         validRange: {
             start: todayStr
         },
@@ -93,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 infoModal.style.display = 'none';
             }, 5000);
         },
-        // Nuevo callback para añadir tooltip en cada celda del día
         dayCellDidMount: function(info) {
             let tooltip = document.createElement("span");
             tooltip.classList.add("fc-day-tooltip");
@@ -117,11 +145,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // =======================
     document.querySelectorAll('.modal .close').forEach(btn => {
         btn.onclick = function () {
+            // Si es el modal de reserva, limpiar todos los campos y mensajes
+            if (this.closest('.modal').id === 'modalReserva') {
+                limpiarModal();
+            }
             this.closest('.modal').style.display = 'none';
         };
     });
     window.onclick = function (event) {
         if (event.target.classList.contains('modal')) {
+            // Si se cierra el modal de reserva, limpiar todos los campos y mensajes
+            if (event.target.id === 'modalReserva') {
+                limpiarModal();
+            }
             event.target.style.display = 'none';
         }
     };
@@ -132,8 +168,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const instalacionSelect = document.getElementById('instalacion');
     const tipoSelect = document.getElementById('tipo');
     const esLocalCheckbox = document.getElementById('esLocal');
-    const precioPreview = document.getElementById('precioPreview');
-    const dniField = document.getElementById('dniField');
 
     esLocalCheckbox.addEventListener('change', function() {
         if (esLocalCheckbox.checked) {
@@ -156,18 +190,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const fecha = fechaInput.value;
         if (!instalacion || !fecha) return;
 
+        // Regenerar opciones según el horario (verificar mes de la fecha)
+        llenarHorasSegunFecha();
+
         fetch('/reservas')
             .then(response => response.json())
             .then(events => {
-                // Filtrar las reservas para el deporte (instalación) y fecha seleccionados.
                 const reservasFiltradas = events.filter(event => {
                     const eventDate = event.start.split('T')[0];
-                    // Se espera que el título inicie con "Reserva " seguido del nombre de la instalación en mayúsculas
                     return eventDate === fecha && event.title.startsWith(`Reserva ${instalacion.toUpperCase()}`);
                 });
-                // Convertir cada reserva en un intervalo en minutos.
                 const intervalosReservados = reservasFiltradas.map(event => {
-                    const startTime = event.start.split('T')[1].substring(0,5); // "HH:MM"
+                    const startTime = event.start.split('T')[1].substring(0,5);
                     const endTime = event.end.split('T')[1].substring(0,5);
                     return {
                         start: convertirHoraAMinutos(startTime),
@@ -175,7 +209,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     };
                 });
 
-                // Si la fecha es hoy, obtener la hora actual en minutos.
                 const isToday = (fecha === todayStr);
                 let currentMin = 0;
                 if (isToday) {
@@ -183,18 +216,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     currentMin = now.getHours() * 60 + now.getMinutes();
                 }
 
-                // Actualizar cada opción en los selectores de hora.
                 [horaEntradaSelect, horaSalidaSelect].forEach(select => {
                     for (let option of select.options) {
                         const minutosOpcion = convertirHoraAMinutos(option.value);
                         let disable = false;
-                        // Bloquear si la opción está en un intervalo reservado.
                         if (intervalosReservados.some(intervalo => 
                             minutosOpcion >= intervalo.start && minutosOpcion < intervalo.end
                         )) {
                             disable = true;
                         }
-                        // Si la fecha es hoy, bloquear las horas que ya han pasado.
                         if (isToday && minutosOpcion < currentMin) {
                             disable = true;
                         }
@@ -311,6 +341,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
             document.getElementById('resultado').textContent = data.mensaje;
             calendar.refetchEvents();
+
+            // Vaciar el formulario y mensajes tras la reserva exitosa
+            limpiarModal();
+
             setTimeout(() => {
                 modal.style.display = 'none';
             }, 2000);
