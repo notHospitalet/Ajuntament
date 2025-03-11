@@ -6,8 +6,8 @@ const nodemailer = require('nodemailer');
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'pablorocheragarcia@gmail.com',      // Tu email
-        pass: '1352005Koala'            // Tu contraseña o token de aplicación
+        user: '',      // Tu email
+        pass: ''       // Tu contraseña o token de aplicación
     }
 });
 
@@ -17,6 +17,15 @@ app.use(express.static('public'));
 
 app.post('/reservar', (req, res) => {
     const { instalacion, fecha, horaEntrada, horaSalida, tipo, esLocal, dni, nombre, telefono, correo } = req.body;
+
+    // Verificar si la fecha y hora son válidas
+    const now = new Date();
+    const selectedDateEntrada = new Date(`${fecha}T${horaEntrada}`);
+    const selectedDateSalida = new Date(`${fecha}T${horaSalida}`);
+
+    if (selectedDateEntrada < now) {
+        return res.status(400).json({ mensaje: 'No se puede reservar en fechas y horas pasadas.' });
+    }
 
     // Verificar si hay solapamientos en las reservas para la misma instalación
     db.all(

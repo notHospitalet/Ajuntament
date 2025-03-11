@@ -34,11 +34,15 @@ document.addEventListener('DOMContentLoaded', function () {
     llenarHoras();
 
     // =======================
-    //  CONFIGURACIÓN DEL CALENDARIO
+    // CONFIGURACIÓN DEL CALENDARIO
     // =======================
     const today = new Date();
     const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const todayText = today.toLocaleDateString('es-ES', optionsDate);
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Bloquear días pasados en el formulario estableciendo el atributo "min"
+    fechaInput.setAttribute('min', todayStr);
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -49,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         headerToolbar: {
             left: 'prev,next myCustomToday',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek'
+            right: 'dayGridMonth'
         },
         customButtons: {
             myCustomToday: {
@@ -59,10 +63,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         },
+        // Bloquear días anteriores a la fecha actual
+        validRange: {
+            start: todayStr
+        },
         events: '/reservas',
         dateClick: function (info) {
             modal.style.display = 'block';
             fechaInput.value = info.dateStr;
+            actualizarHorasDisponibles();
         },
         eventClick: function(info) {
             const infoModal = document.getElementById('infoReservaModal');
@@ -104,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.render();
 
     // =======================
-    //  LÓGICA PARA CERRAR LOS MODALES
+    // LÓGICA PARA CERRAR LOS MODALES
     // =======================
     document.querySelectorAll('.modal .close').forEach(btn => {
         btn.onclick = function () {
@@ -118,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // =======================
-    //  MANEJO DEL FORMULARIO DE RESERVA
+    // MANEJO DEL FORMULARIO DE RESERVA
     // =======================
     const instalacionSelect = document.getElementById('instalacion');
     const tipoSelect = document.getElementById('tipo');
@@ -134,6 +143,72 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         calcularPrecio();
     });
+
+    // Función para convertir "HH:MM" a minutos
+    function convertirHoraAMinutos(horaStr) {
+        const [h, m] = horaStr.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    // Función para actualizar las horas disponibles en los selectores
+    function actualizarHorasDisponibles() {
+        const instalacion = instalacionSelect.value;
+        const fecha = fechaInput.value;
+        if (!instalacion || !fecha) return;
+
+        fetch('/reservas')
+            .then(response => response.json())
+            .then(events => {
+                // Filtrar las reservas para el deporte (instalación) y fecha seleccionados.
+                const reservasFiltradas = events.filter(event => {
+                    const eventDate = event.start.split('T')[0];
+                    // Se espera que el título inicie con "Reserva " seguido del nombre de la instalación en mayúsculas
+                    return eventDate === fecha && event.title.startsWith(`Reserva ${instalacion.toUpperCase()}`);
+                });
+                // Convertir cada reserva en un intervalo en minutos.
+                const intervalosReservados = reservasFiltradas.map(event => {
+                    const startTime = event.start.split('T')[1].substring(0,5); // "HH:MM"
+                    const endTime = event.end.split('T')[1].substring(0,5);
+                    return {
+                        start: convertirHoraAMinutos(startTime),
+                        end: convertirHoraAMinutos(endTime)
+                    };
+                });
+
+                // Si la fecha es hoy, obtener la hora actual en minutos.
+                const isToday = (fecha === todayStr);
+                let currentMin = 0;
+                if (isToday) {
+                    const now = new Date();
+                    currentMin = now.getHours() * 60 + now.getMinutes();
+                }
+
+                // Actualizar cada opción en los selectores de hora.
+                [horaEntradaSelect, horaSalidaSelect].forEach(select => {
+                    for (let option of select.options) {
+                        const minutosOpcion = convertirHoraAMinutos(option.value);
+                        let disable = false;
+                        // Bloquear si la opción está en un intervalo reservado.
+                        if (intervalosReservados.some(intervalo => 
+                            minutosOpcion >= intervalo.start && minutosOpcion < intervalo.end
+                        )) {
+                            disable = true;
+                        }
+                        // Si la fecha es hoy, bloquear las horas que ya han pasado.
+                        if (isToday && minutosOpcion < currentMin) {
+                            disable = true;
+                        }
+                        option.disabled = disable;
+                        option.style.backgroundColor = disable ? "#e0e0e0" : "";
+                    }
+                });
+            })
+            .catch(error => console.error('Error al obtener reservas:', error));
+    }
+
+    // Actualizar horas disponibles cuando cambie la instalación o la fecha
+    instalacionSelect.addEventListener('change', actualizarHorasDisponibles);
+    fechaInput.addEventListener('change', actualizarHorasDisponibles);
 
     function calcularPrecio() {
         const instalacion = instalacionSelect.value;

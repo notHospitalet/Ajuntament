@@ -64,11 +64,11 @@ h1 {
 .modal-content {
     background-color: rgba(255, 255, 255, 0.98);
     margin: 10% auto;
-    padding: 30px;
+    padding: 20px; /* Reducido */
     border: none;
     width: 90%;
     max-width: 600px;
-    max-height: 90vh;  /* Altura máxima para permitir scroll vertical */
+    max-height: 70vh;  /* Altura máxima para permitir scroll vertical */
     overflow-y: auto;  /* Barra de desplazamiento vertical */
     border-radius: 15px;
     position: relative;
